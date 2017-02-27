@@ -1,6 +1,17 @@
-from flask import Flask, redirect, render_template, request, url_for
-from flask_login import current_user, LoginManager, login_required, login_user, logout_user
+from flask import Flask
+from flask import redirect
+from flask import render_template
+from flask import request
+from flask import url_for
+
+from flask_login import current_user
+from flask_login import LoginManager
+from flask_login import login_required
+from flask_login import login_user
+from flask_login import logout_user
+
 import config
+import datetime
 import os
 
 from bitlyhelper import BitlyHelper
@@ -83,6 +94,11 @@ def account_deletetable():
     tableid=request.args.get('tableid')
     DB.delete_table(tableid)
     return redirect(url_for('account'))
+ 
+ @app.route('/newrequest/<tid>/')
+ def new_request(tid):
+    DB.add_request(tid, datetime.datetime.now())
+    return 'Your request has been logged and a waiter will be with you shortly.'
 
 if __name__=='__main__':
     app.run(debug=True, port=7092)
