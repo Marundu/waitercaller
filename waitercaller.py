@@ -69,8 +69,13 @@ def home():
 
 @app.route('/dashboard')
 @login_required
-def dashbard():
-    return render_template('dashboard.html')
+def dashboard():
+    now=datetime.datetime.now()
+    requests=DB.get_requests(current_user.get_id())
+    for req in requests:
+        deltaseconds=(now - req['time']).seconds
+        req['wait_minutes']='{}.{}'.format((deltaseconds/60), str(deltaseconds % 60).zfill(2))
+    return render_template('dashboard.html', requests=requests)
 
 @app.route('/account')
 @login_required
@@ -83,7 +88,6 @@ def account():
 def account_createtable():
     tablename=request.form.get("tablenumber")
     tableid=DB.add_table(tablename, current_user.get_id())
-    # new_url=config.base_url + 'newrequest/' + tableid
     new_url=BH.shorten_url(config.base_url + 'newrequest/' + tableid)
     DB.update_table(tableid, new_url)
     return redirect(url_for('account'))
@@ -95,10 +99,10 @@ def account_deletetable():
     DB.delete_table(tableid)
     return redirect(url_for('account'))
  
- @app.route('/newrequest/<tid>/')
- def new_request(tid):
-    DB.add_request(tid, datetime.datetime.now())
-    return 'Your request has been logged and a waiter will be with you shortly.'
+@app.route('/newrequest/<tid>/')
+def new_request(tid):
+   DB.add_request(tid, datetime.datetime.now())
+   return 'Your request has been logged and a waiter will be with you shortly.'
 
 if __name__=='__main__':
     app.run(debug=True, port=7092)
