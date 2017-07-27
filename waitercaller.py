@@ -1,4 +1,3 @@
-
 from flask import Flask
 from flask import redirect
 from flask import render_template
@@ -16,6 +15,7 @@ import datetime
 import os
 
 from bitlyhelper import BitlyHelper
+from forms import RegistrationForm
 from mockdbhelper import MockDBHelper as DBHelper
 from passwordhelper import PasswordHelper
 from user import User
@@ -34,6 +34,24 @@ def load_user(user_id):
     if user_password:
         return User(user_id)
 
+@app.route('/')
+def home():
+    registrationform=RegistrationForm()
+    return render_template('home.html', registrationform=registrationform)        
+
+@app.route('/register', methods=['POST'])
+def register():
+    form=RegistrationForm(request.form)
+    if form.validate():
+        if DB.get_user(form.email.data):
+            form.email.errors.append('Email address has already been registered')
+            return render_template('home.html', registrationform=form)
+        salt=PH.get_salt()
+        hashed=PH.get_hash(form.password2.data+salt)
+        DB.add_user=(form.email.data, salt, hashed)
+        return redirect(url_for('home'))
+    return render_template('home.html', registrationform=form)
+
 @app.route('/login', methods=['POST'])
 def login():
     email=request.form.get('email')
@@ -45,28 +63,10 @@ def login():
         return redirect(url_for('account'))
     return home()
 
-@app.route('/register', methods=['POST'])
-def register():
-    email=request.form.get('email')
-    pw1=request.form.get('password')
-    pw2=request.form.get('password2')
-    if not pw1==pw2:
-        return redirect(url_for('home'))
-    if DB.get_user(email):
-        return redirect(url_for('home'))
-    salt=PH.get_salt()
-    hashed=PH.get_hash(pw1+salt)
-    DB.add_user(email,salt,hashed)
-    return redirect(url_for('home'))
-
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('home'))
-
-@app.route('/')
-def home():
-    return render_template('home.html')
 
 @app.route('/dashboard')
 @login_required
