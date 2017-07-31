@@ -55,28 +55,43 @@
         {{ registrationform.csrf_token }}
         <div class="form-group">
           <div class="col-sm-9">
-          {{ registrationform.email(class="form-control", placeholder="Email Address") }}
+            {% if registrationform.email.errors %}
+            <ul class="errors">
+              {% for error in registrationform.email.errors %}
+              <li>{{ error }}</li>{% endfor %}</ul>
+              {% endif %}
+              {{ registrationform.email(class="form-control", placeholder="Email Address") }}
+            </div>
           </div>
-        </div>
-        <div class="form-group">
-          <div class="col-sm-9">
-          {{ registrationform.password(class="form-control", placeholder="Password") }}
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="col-sm-9">
-          {{ registrationform.password2(class="form-control", placeholder="Confirm Password") }}
-          </div>
-        </div>
+          <div class="form-group">
+            <div class="col-sm-9">
+              {% if registrationform.password.errors %}
+              <ul class="errors">
+                {% for error in registrationform.password.errors %}
+                <li>{{ error }}</li>{% endfor %}</ul>
+                {% endif %}
+                {{ registrationform.password(class="form-control", placeholder="Password") }}
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-9">
+                {% if registrationform.password2.errors %}
+                <ul class="errors">
+                  {% for error in registrationform.password2.errors %}
+                  <li>{{ error }}</li>{% endfor %}</ul>
+                  {% endif %}
+                  {{ registrationform.password2(class="form-control", placeholder="Confirm Password") }}
+                </div>
+              </div>
 
-        <div class="form-group">
-          <div class="col-sm-9">
-          {{ registrationform.submit(class="btn btn-primary btn-block") }}
+              <div class="form-group">
+                <div class="col-sm-9">
+                  {{ registrationform.submit(class="btn btn-primary btn-block") }}
+                </div>
+              </div>
+            </form> <!-- /form -->
           </div>
         </div>
-      </form> <!-- /form -->
-    </div>
-  </div>
-</div>
+      </div>
 
 {% endblock %}
